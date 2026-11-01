@@ -1,0 +1,31 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>주차위치</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1e5eff"><link rel="icon" href="icon-192.png">
+<style>
+:root{color-scheme:light dark;--bg:#f4f6fb;--fg:#111;--card:#fff;--acc:#1e5eff}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#eee;--card:#1a2130}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;align-items:center;padding:20px 12px;min-height:100vh}
+.card{background:var(--card);border-radius:20px;padding:18px;width:100%;max-width:440px;text-align:center;box-shadow:0 2px 12px #0002}
+#spot{font-size:52px;font-weight:800;letter-spacing:1px;margin:6px 0}#time{opacity:.7;font-size:15px}
+.wheels{display:flex;width:fit-content;margin-left:auto;margin-right:auto;gap:6px;justify-content:center;margin:22px 0;position:relative}
+.wheels::after{content:"";position:absolute;left:0;right:0;top:100px;height:50px;border-top:2px solid var(--acc);border-bottom:2px solid var(--acc);pointer-events:none;border-radius:6px}
+.w{height:250px;overflow-y:scroll;scroll-snap-type:y mandatory;width:68px;scrollbar-width:none;-webkit-mask:linear-gradient(transparent,#000 35%,#000 65%,transparent)}
+.w::-webkit-scrollbar{display:none}.w.f{width:84px}
+.w div{text-align:center;height:50px;line-height:50px;font-size:32px;font-weight:700;scroll-snap-align:center}
+.pad{scroll-snap-align:none!important}.sep{font-size:32px;align-self:center;font-weight:700}
+button{width:100%;max-width:440px;font-size:24px;font-weight:700;padding:18px;border:0;border-radius:16px;background:var(--acc);color:#fff;margin-top:6px}
+#clr{background:transparent;color:var(--fg);opacity:.6;font-size:18px}
+</style></head><body>
+<div class="card"><div>마지막 주차 위치</div><div id="spot">-</div><div id="time">저장된 위치 없음</div></div>
+<div class="wheels"><div class="w f" id="w0"></div><div class="sep">·</div><div class="w" id="w1"></div><div class="sep">-</div><div class="w" id="w2"></div><div class="w" id="w3"></div><div class="w" id="w4"></div></div>
+<button id="save">저장</button><button id="clr">지우기</button>
+<script>
+const F=['B5','B4','B3','B2','B1','1F','2F','3F','4F'],Z=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],D=[...'0123456789'];
+const L=[F,Z,D,D,D],W=L.map((a,i)=>{const e=document.getElementById('w'+i);e.innerHTML='<div class=pad></div><div class=pad></div>'+a.map(x=>'<div>'+x+'</div>').join('')+'<div class=pad></div><div class=pad></div>';return e});
+const idx=e=>Math.round(e.scrollTop/50),set=(e,i)=>e.scrollTop=i*50;
+const K='parkingSpot';function show(){const s=JSON.parse(localStorage.getItem(K)||'null');
+ spot.textContent=s?s.t:'-';time.textContent=s?new Date(s.at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'})+' 저장':'저장된 위치 없음';
+ const v=s?s.v:[4,0,0,0,0];W.forEach((e,i)=>set(e,v[i]))}
+save.onclick=()=>{const v=W.map(idx);localStorage.setItem(K,JSON.stringify({v,t:F[v[0]]+' · '+Z[v[1]]+'-'+v[2]+v[3]+v[4],at:Date.now()}));show();navigator.vibrate&&navigator.vibrate(40)};
+clr.onclick=()=>{if(confirm('지울까요?')){localStorage.removeItem(K);show()}};
+requestAnimationFrame(show);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script></body></html>

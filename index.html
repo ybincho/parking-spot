@@ -3,31 +3,33 @@
 <style>
 :root{color-scheme:light dark;--bg:#f4f6fb;--fg:#111;--card:#fff;--acc:#1e5eff}
 @media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#eee;--card:#1a2130}}
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;align-items:center;padding:20px 12px;min-height:100vh}
-.card{background:var(--card);border-radius:20px;padding:18px;width:100%;max-width:440px;text-align:center;box-shadow:0 2px 12px #0002}
-#spot{font-size:52px;font-weight:800;letter-spacing:1px;margin:6px 0}#time,#ago{opacity:.7;font-size:15px}
-.wheels{display:flex;width:fit-content;margin-left:auto;margin-right:auto;gap:6px;justify-content:center;margin:22px 0;position:relative}
-.wheels::after{content:"";position:absolute;left:0;right:0;top:100px;height:50px;border-top:2px solid var(--acc);border-bottom:2px solid var(--acc);pointer-events:none;border-radius:6px}
-.w{height:250px;overflow-y:scroll;scroll-snap-type:y mandatory;width:68px;scrollbar-width:none;-webkit-mask:linear-gradient(transparent,#000 35%,#000 65%,transparent)}
-.w::-webkit-scrollbar{display:none}.w.f{width:84px}
-.w div{text-align:center;height:50px;line-height:50px;font-size:32px;font-weight:700;scroll-snap-align:center}
-.pad{scroll-snap-align:none!important}.sep{font-size:32px;align-self:center;font-weight:700}
-.picker{display:flex;flex-direction:column;align-items:flex-end;width:max-content;margin:10px auto 0}
-#num{width:calc(68px*3 + 6px*2);height:32px;margin:0 0 6px;padding:0 8px;border:1.5px solid #0002;border-radius:10px;background:var(--card);color:var(--fg);font:700 18px/1 system-ui,sans-serif;text-align:center;letter-spacing:.2em}
+*{box-sizing:border-box}html,body{overflow-x:hidden;width:100%;max-width:100%;touch-action:pan-y}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;align-items:center;padding:20px 12px;min-height:100vh}
+.card,.tools,.wheels,button{width:100%;max-width:440px;min-width:0}
+.card{background:var(--card);border-radius:20px;padding:18px;text-align:center;box-shadow:0 2px 12px #0002}
+#spot{font-size:clamp(26px,9vw,52px);font-weight:800;letter-spacing:1px;margin:6px 0;line-height:1.05;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#time,#ago{opacity:.7;font-size:15px;max-width:100%;overflow-wrap:anywhere}
+.tools{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+#num{flex:0 1 9em;width:9em;max-width:46%;min-width:0;height:34px;margin:0 0 0 auto;padding:0 8px;border:1.5px solid #0002;border-radius:10px;background:var(--card);color:var(--fg);font:700 18px/1 system-ui,sans-serif;text-align:center;letter-spacing:.08em}
 #num::placeholder{font-weight:600;font-size:13px;letter-spacing:0;opacity:.45}
 #num:focus{outline:none;border-color:var(--acc)}
+#install{flex:1 1 auto;width:auto;max-width:58%;min-width:0;margin:0;font-size:clamp(12px,3.4vw,14px);font-weight:600;padding:7px 10px;background:transparent;color:var(--fg);border:1px solid #0003;border-radius:999px;opacity:.85;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#installHint{flex:1 1 auto;min-width:0;max-width:62%;margin:0;text-align:left}
+#installHint span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:clamp(10px,2.8vw,12px);line-height:1.25;opacity:.55;overflow-wrap:anywhere}
+#installHint[hidden]{display:none!important}
 @media(prefers-color-scheme:dark){#num{border-color:#fff3}#install{border-color:#fff3}}
-.wheels{margin:0 0 16px}
-button{width:100%;max-width:440px;font-size:24px;font-weight:700;padding:18px;border:0;border-radius:16px;background:var(--acc);color:#fff;margin-top:6px}
-#install{width:auto;font-size:14px;font-weight:600;padding:8px 14px;margin-top:12px;background:transparent;color:var(--fg);border:1px solid #0003;border-radius:999px;opacity:.8}
-#installHint{font-size:12px;line-height:1.4;opacity:.55;margin:10px 16px 0;text-align:center}
+.wheels{display:flex;gap:clamp(2px,1.2vw,6px);justify-content:center;align-items:center;margin:0 0 16px;position:relative;touch-action:pan-y;overflow:hidden}
+.wheels::after{content:"";position:absolute;left:0;right:0;top:100px;height:50px;border-top:2px solid var(--acc);border-bottom:2px solid var(--acc);pointer-events:none;border-radius:6px}
+.w{flex:3 1 0;min-width:0;height:250px;overflow-x:hidden;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-mask:linear-gradient(transparent,#000 35%,#000 65%,transparent);touch-action:pan-y}
+.w::-webkit-scrollbar{display:none}.w.f{flex:3.7 1 0}
+.w div{text-align:center;height:50px;line-height:50px;font-size:clamp(18px,6.2vw,32px);font-weight:700;scroll-snap-align:center;max-width:100%;overflow:hidden}
+.pad{scroll-snap-align:none!important}.sep{flex:0 1 auto;min-width:0;overflow:hidden;font-size:clamp(16px,5vw,32px);font-weight:700;line-height:1}
+button{font-size:24px;font-weight:700;padding:18px;border:0;border-radius:16px;background:var(--acc);color:#fff;margin-top:6px}
 </style></head><body>
 <div class="card"><div>주차 위치</div><div id="spot">-</div><div id="time">저장된 위치 없음</div><div id="ago" hidden></div></div>
-<div class="picker"><input id="num" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="번호 입력" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="번호 입력">
-<div class="wheels"><div class="w f" id="w0"></div><div class="sep">·</div><div class="w" id="w1"></div><div class="sep">-</div><div class="w" id="w2"></div><div class="w" id="w3"></div><div class="w" id="w4"></div></div></div>
+<div class="tools"><button id="install" type="button" hidden>홈 화면에 추가</button><p id="installHint" hidden><span>브라우저 메뉴(⋮) → 홈 화면에 추가</span></p><input id="num" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="번호 입력" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="번호 입력"></div>
+<div class="wheels"><div class="w f" id="w0"></div><div class="sep">·</div><div class="w" id="w1"></div><div class="sep">-</div><div class="w" id="w2"></div><div class="w" id="w3"></div><div class="w" id="w4"></div></div>
 <button id="save">저장</button>
-<button id="install" type="button" hidden>홈 화면에 추가</button>
-<p id="installHint" hidden>브라우저 메뉴(⋮) → 홈 화면에 추가</p>
 <script>
 const F=['B5','B4','B3','B2','B1','1F','2F','3F','4F'],Z=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],D=[...'0123456789'];
 const L=[F,Z,D,D,D],W=L.map((a,i)=>{const e=document.getElementById('w'+i);e.innerHTML='<div class=pad></div><div class=pad></div>'+a.map(x=>'<div>'+x+'</div>').join('')+'<div class=pad></div><div class=pad></div>';return e});
@@ -70,11 +72,18 @@ num.addEventListener('keydown',e=>{if(e.key==='Enter'||e.keyCode===13){e.prevent
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-let deferred=null;
+let deferred=null,wantHint=false;
+function revealHint(){
+  if(!wantHint){installHint.hidden=true;return}
+  installHint.hidden=false;
+  const s=installHint.querySelector('span');
+  if(s.scrollHeight>s.clientHeight+1||s.scrollWidth>s.clientWidth+1)installHint.hidden=true;
+}
 if(!standalone){
-  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;install.hidden=false;installHint.hidden=true});
-  window.addEventListener('appinstalled',()=>{deferred=null;install.hidden=true;installHint.hidden=true});
-  setTimeout(()=>{if(!deferred&&install.hidden)installHint.hidden=false},2500);
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;wantHint=false;install.hidden=false;installHint.hidden=true});
+  window.addEventListener('appinstalled',()=>{deferred=null;wantHint=false;install.hidden=true;installHint.hidden=true});
+  setTimeout(()=>{if(!deferred&&install.hidden){wantHint=true;revealHint()}},2500);
+  window.addEventListener('resize',revealHint);
 }
 install.onclick=async()=>{const ev=deferred;if(!ev)return;deferred=null;install.hidden=true;try{await ev.prompt();await ev.userChoice}catch(err){}};
 requestAnimationFrame(show);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');

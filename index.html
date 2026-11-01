@@ -12,15 +12,47 @@
 .w::-webkit-scrollbar{display:none}.w.f{width:84px}
 .w div{text-align:center;height:50px;line-height:50px;font-size:32px;font-weight:700;scroll-snap-align:center}
 .pad{scroll-snap-align:none!important}.sep{font-size:32px;align-self:center;font-weight:700}
+.picker{display:flex;flex-direction:column;align-items:flex-end;width:max-content;margin:10px auto 0}
+#num{width:calc(68px*3 + 6px*2);height:32px;margin:0 0 6px;padding:0 8px;border:1.5px solid #0002;border-radius:10px;background:var(--card);color:var(--fg);font:700 18px/1 system-ui,sans-serif;text-align:center;letter-spacing:.2em}
+#num::placeholder{font-weight:600;font-size:13px;letter-spacing:0;opacity:.45}
+#num:focus{outline:none;border-color:var(--acc)}
+@media(prefers-color-scheme:dark){#num{border-color:#fff3}#install{border-color:#fff3}}
+.wheels{margin:0 0 16px}
 button{width:100%;max-width:440px;font-size:24px;font-weight:700;padding:18px;border:0;border-radius:16px;background:var(--acc);color:#fff;margin-top:6px}
+#install{width:auto;font-size:14px;font-weight:600;padding:8px 14px;margin-top:12px;background:transparent;color:var(--fg);border:1px solid #0003;border-radius:999px;opacity:.8}
+#installHint{font-size:12px;line-height:1.4;opacity:.55;margin:10px 16px 0;text-align:center}
 </style></head><body>
 <div class="card"><div>주차 위치</div><div id="spot">-</div><div id="time">저장된 위치 없음</div><div id="ago" hidden></div></div>
-<div class="wheels"><div class="w f" id="w0"></div><div class="sep">·</div><div class="w" id="w1"></div><div class="sep">-</div><div class="w" id="w2"></div><div class="w" id="w3"></div><div class="w" id="w4"></div></div>
+<div class="picker"><input id="num" inputmode="numeric" pattern="[0-9]*" maxlength="3" placeholder="번호 입력" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="번호 입력">
+<div class="wheels"><div class="w f" id="w0"></div><div class="sep">·</div><div class="w" id="w1"></div><div class="sep">-</div><div class="w" id="w2"></div><div class="w" id="w3"></div><div class="w" id="w4"></div></div></div>
 <button id="save">저장</button>
+<button id="install" type="button" hidden>홈 화면에 추가</button>
+<p id="installHint" hidden>브라우저 메뉴(⋮) → 홈 화면에 추가</p>
 <script>
 const F=['B5','B4','B3','B2','B1','1F','2F','3F','4F'],Z=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],D=[...'0123456789'];
 const L=[F,Z,D,D,D],W=L.map((a,i)=>{const e=document.getElementById('w'+i);e.innerHTML='<div class=pad></div><div class=pad></div>'+a.map(x=>'<div>'+x+'</div>').join('')+'<div class=pad></div><div class=pad></div>';return e});
-const idx=e=>Math.round(e.scrollTop/50),set=(e,i)=>e.scrollTop=i*50;
+const idx=e=>Math.round(e.scrollTop/50),set=(e,i)=>{e._tok=(e._tok||0)+1;e.style.scrollSnapType='';e.scrollTop=i*50};
+let digitTarget=null;
+function scrollDigits(vals){
+  digitTarget=vals;
+  vals.forEach((n,i)=>{
+    const el=W[i+2],target=n*50,start=el.scrollTop,dist=target-start,token=(el._tok=(el._tok||0)+1);
+    if(!dist){el.scrollTop=target;return}
+    el.style.scrollSnapType='none';
+    const t0=performance.now();
+    (function step(now){
+      if(el._tok!==token)return;
+      const t=Math.min(1,(now-t0)/200);
+      el.scrollTop=start+dist*(1-Math.pow(1-t,3));
+      if(t<1)requestAnimationFrame(step);
+      else{el.style.scrollSnapType='';el.scrollTop=target}
+    })(t0);
+  });
+}
+function cancelDigit(el){
+  if(!digitTarget)return;
+  el._tok=(el._tok||0)+1;el.style.scrollSnapType='';digitTarget=null;
+}
 const K='parkingSpot';let savedAt=null;
 function elapsed(at){let s=Math.max(0,Math.floor((Date.now()-at)/1000));const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60);s%=60;if(d)return d+'일 '+h+'시간 경과';if(h)return h+'시간 '+m+'분 경과';if(m)return m+'분 '+s+'초 경과';return s+'초 경과'}
 function tick(){if(savedAt==null){ago.hidden=true;return}ago.hidden=false;ago.textContent=elapsed(savedAt)}
@@ -28,8 +60,22 @@ function show(){const s=JSON.parse(localStorage.getItem(K)||'null');
  spot.textContent=s?s.t:'-';time.textContent=s?new Date(s.at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'})+' 저장':'저장된 위치 없음';
  savedAt=s?s.at:null;tick();
  const v=s?s.v:[4,0,0,0,0];W.forEach((e,i)=>set(e,v[i]))}
-save.onclick=()=>{const v=W.map(idx);localStorage.setItem(K,JSON.stringify({v,t:F[v[0]]+' · '+Z[v[1]]+'-'+v[2]+v[3]+v[4],at:Date.now()}));show();navigator.vibrate&&navigator.vibrate(40)};
+save.onclick=()=>{
+  if(digitTarget){const t=digitTarget;digitTarget=null;t.forEach((n,i)=>set(W[i+2],n))}
+  const v=W.map(idx);localStorage.setItem(K,JSON.stringify({v,t:F[v[0]]+' · '+Z[v[1]]+'-'+v[2]+v[3]+v[4],at:Date.now()}));
+  show();num.value='';num.blur();navigator.vibrate&&navigator.vibrate(40)};
+num.addEventListener('input',()=>{const d=num.value.replace(/\D/g,'').slice(0,3);if(num.value!==d)num.value=d;scrollDigits(d.padStart(3,'0').split('').map(Number))});
+num.addEventListener('keydown',e=>{if(e.key==='Enter'||e.keyCode===13){e.preventDefault();num.blur()}});
+[2,3,4].forEach(i=>{const el=W[i];el.addEventListener('pointerdown',()=>cancelDigit(el));el.addEventListener('touchstart',()=>cancelDigit(el),{passive:true});el.addEventListener('wheel',()=>cancelDigit(el),{passive:true})});
 setInterval(tick,1000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')tick()});
+const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+let deferred=null;
+if(!standalone){
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;install.hidden=false;installHint.hidden=true});
+  window.addEventListener('appinstalled',()=>{deferred=null;install.hidden=true;installHint.hidden=true});
+  setTimeout(()=>{if(!deferred&&install.hidden)installHint.hidden=false},2500);
+}
+install.onclick=async()=>{const ev=deferred;if(!ev)return;deferred=null;install.hidden=true;try{await ev.prompt();await ev.userChoice}catch(err){}};
 requestAnimationFrame(show);if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
